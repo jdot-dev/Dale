@@ -1,0 +1,65 @@
+# LobeChat Vercel Ignore Configuration
+# Exclude unnecessary files from Vercel deployment
+
+# Apps (desktop is not needed for web deployment)
+apps/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Testing
+e2e/
+tests/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+coverage/
+.nyc_output/
+
+# Development files
+.husky/
+.github/
+scripts/
+.vscode/
+.idea/
+*.sublime-*
+
+# Docker files
+docker-compose/
+docker-compose.*.yml
+Dockerfile*
+
+# Build tools config
+.eslintrc*
+.prettierrc*
+.stylelintrc*
+.remarkrc*
+.commitlintrc*
+renovate.json
+netlify.toml
+
+# Temporary files
+.temp/
+temp/
+tmp/
+*.tmp
+*.log
+.cache/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Misc
+*.patch
+prd/
+CLAUDE.md
+GEMINI.md
+AGENTS.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+
