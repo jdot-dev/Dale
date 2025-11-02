@@ -4,7 +4,9 @@ export { HistoryTruncateProcessor } from './HistoryTruncate';
 export { InputTemplateProcessor } from './InputTemplate';
 export { MessageCleanupProcessor } from './MessageCleanup';
 export { MessageContentProcessor } from './MessageContent';
+export { MultiSourceRAGInjector } from './MultiSourceRAGInjector';
 export { PlaceholderVariablesProcessor } from './PlaceholderVariables';
+export { SentimentInjector } from './SentimentInjector';
 export { ToolCallProcessor } from './ToolCall';
 export { ToolMessageReorder } from './ToolMessageReorder';
 

@@ -4,6 +4,7 @@ export * from './apiKey';
 export * from './asyncTask';
 export * from './chatGroup';
 export * from './document';
+export { scrapedDataCache, scrapedSources, sentimentData } from './document';
 export * from './file';
 export * from './generation';
 export * from './message';

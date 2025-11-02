@@ -1,0 +1,30 @@
+{
+  "name": "@lobechat/scrapers",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Multi-source web scraping and data ingestion for LobeChat",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "test": "vitest run --silent='passed-only'",
+    "test:watch": "vitest",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@lobechat/utils": "workspace:*",
+    "playwright": "^1.49.0",
+    "playwright-core": "^1.49.0",
+    "node-cron": "^3.0.3",
+    "bullmq": "^5.29.3",
+    "ioredis": "^5.4.2",
+    "zod": "^3.25.76",
+    "debug": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.9",
+    "@types/node-cron": "^3.0.11",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}
+

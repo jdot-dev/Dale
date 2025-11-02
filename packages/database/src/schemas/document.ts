@@ -1,11 +1,14 @@
 /* eslint-disable sort-keys-fix/sort-keys-fix  */
 import {
+  boolean,
   index,
   integer,
   jsonb,
   pgTable,
   primaryKey,
+  real,
   text,
+  timestamp,
   uniqueIndex,
   uuid,
   varchar,
@@ -104,3 +107,120 @@ export const documentChunks = pgTable(
 
 export type NewDocumentChunk = typeof documentChunks.$inferInsert;
 export type DocumentChunkItem = typeof documentChunks.$inferSelect;
+
+/**
+ * Scraped sources table - Configuration for data scraping sources
+ */
+export const scrapedSources = pgTable(
+  'scraped_sources',
+  {
+    id: varchar('id', { length: 30 })
+      .$defaultFn(() => idGenerator('scraped_sources', 16))
+      .primaryKey(),
+
+    // Source configuration
+    sourceType: text('source_type').notNull(), // 'web', 'twitter', 'reddit', 'discord', 'mobile', 'rss'
+    sourceUrl: text('source_url').notNull(),
+    scrapeConfig: jsonb('scrape_config').$type<Record<string, any>>(),
+
+    // Scraping schedule
+    lastScrapedAt: timestamp('last_scraped_at'),
+    scrapeFrequency: text('scrape_frequency'), // cron expression
+    isActive: boolean('is_active').default(true).notNull(),
+
+    // User association
+    userId: text('user_id')
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+
+    // Timestamps
+    ...timestamps,
+  },
+  (table) => [
+    index('scraped_sources_user_id_idx').on(table.userId),
+    index('scraped_sources_source_type_idx').on(table.sourceType),
+    index('scraped_sources_is_active_idx').on(table.isActive),
+    index('scraped_sources_last_scraped_at_idx').on(table.lastScrapedAt),
+  ],
+);
+
+export type NewScrapedSource = typeof scrapedSources.$inferInsert;
+export type ScrapedSourceItem = typeof scrapedSources.$inferSelect;
+
+/**
+ * Sentiment data table - Store sentiment analysis results
+ */
+export const sentimentData = pgTable(
+  'sentiment_data',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+
+    // Associated document
+    documentId: varchar('document_id', { length: 30 }).references(() => documents.id, {
+      onDelete: 'cascade',
+    }),
+
+    // Sentiment results
+    sentiment: text('sentiment').notNull(), // 'positive', 'negative', 'neutral'
+    sentimentScore: real('sentiment_score').notNull(), // -1 to 1
+    confidence: real('confidence').notNull(), // 0 to 1
+
+    // Detailed emotions
+    emotions: jsonb('emotions').$type<Record<string, number>>(),
+
+    // Analysis metadata
+    model: text('model').notNull(), // which AI model analyzed
+    metadata: jsonb('metadata').$type<Record<string, any>>(),
+
+    // Timestamps
+    ...timestamps,
+  },
+  (table) => [
+    index('sentiment_data_document_id_idx').on(table.documentId),
+    index('sentiment_data_sentiment_idx').on(table.sentiment),
+    index('sentiment_data_created_at_idx').on(table.createdAt),
+  ],
+);
+
+export type NewSentimentData = typeof sentimentData.$inferInsert;
+export type SentimentDataItem = typeof sentimentData.$inferSelect;
+
+/**
+ * Scraped data cache table - Track scraped content for deduplication
+ */
+export const scrapedDataCache = pgTable(
+  'scraped_data_cache',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+
+    // Source reference
+    sourceId: varchar('source_id', { length: 30 })
+      .references(() => scrapedSources.id, { onDelete: 'cascade' })
+      .notNull(),
+
+    // Content identification
+    contentHash: text('content_hash').notNull(),
+
+    // Associated document (optional)
+    documentId: varchar('document_id', { length: 30 }).references(() => documents.id, {
+      onDelete: 'set null',
+    }),
+
+    // Storage
+    scrapedAt: timestamp('scraped_at').defaultNow().notNull(),
+    s3Path: text('s3_path'),
+
+    // Additional metadata
+    metadata: jsonb('metadata').$type<Record<string, any>>(),
+  },
+  (table) => [
+    index('scraped_data_cache_source_id_idx').on(table.sourceId),
+    index('scraped_data_cache_content_hash_idx').on(table.contentHash),
+    index('scraped_data_cache_document_id_idx').on(table.documentId),
+    index('scraped_data_cache_scraped_at_idx').on(table.scrapedAt),
+    uniqueIndex('scraped_data_cache_source_content_unique').on(table.sourceId, table.contentHash),
+  ],
+);
+
+export type NewScrapedDataCache = typeof scrapedDataCache.$inferInsert;
+export type ScrapedDataCacheItem = typeof scrapedDataCache.$inferSelect;
